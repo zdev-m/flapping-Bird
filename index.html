@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+</head>
+<body>
+    
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Flappy Bird</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #1a1e2b;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+        }
+
+        /* Main Card - Simple Clean */
+        .game-card {
+            max-width: 380px;
+            width: 100%;
+            background: #1e2434;
+            border-radius: 32px;
+            padding: 20px 16px;
+            box-shadow: 0 20px 30px -10px #000;
+        }
+
+        /* Score Board */
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            background: #2a3145;
+            border-radius: 25px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+
+        .score-box {
+            text-align: center;
+        }
+
+        .score-label {
+            color: #9aa5b8;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        .score-number {
+            color: #fbbf24;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Game Container */
+        .game-area {
+            border-radius: 24px;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+            background: #4ec0ca;
+            box-shadow: 0 10px 20px -8px #000;
+            margin-bottom: 12px;
+            border: 2px solid #fbbf24;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: #4ec0ca;
+        }
+
+        /* Tap Text */
+        .tap-text {
+            text-align: center;
+            color: #fbbf24;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Progress */
+        .progress-simple {
+            background: #2a3145;
+            border-radius: 20px;
+            padding: 8px 12px;
+            margin: 12px 0;
+        }
+
+        .progress-track {
+            background: #1a1f2c;
+            border-radius: 20px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-current {
+            width: 0%;
+            height: 100%;
+            background: #fbbf24;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #9aa5b8;
+            font-size: 0.65rem;
+            margin-top: 4px;
+        }
+
+        /* Withdrawal Section - Simple */
+        .withdraw-box {
+            background: #2a3145;
+            border-radius: 25px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .withdraw-title {
+            color: #fbbf24;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* Dropdown */
+        .method-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1e2434;
+            border: 1px solid #3a4258;
+            border-radius: 25px;
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Input Fields */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .field {
+            background: #1e2434;
+            border: 1px solid #3a4258;
+            border-radius: 25px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .field:focus {
+            border-color: #fbbf24;
+        }
+
+        .field::placeholder {
+            color: #5f6b81;
+        }
+
+        /* Withdraw Button */
+        .action-btn {
+            width: 100%;
+            background: #fbbf24;
+            border: none;
+            border-radius: 25px;
+            padding: 14px;
+            color: #1e2434;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .action-btn:active {
+            opacity: 0.8;
+        }
+
+        /* Status */
+        .status-text {
+            text-align: center;
+            color: #9aa5b8;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            color: #5f6b81;
+            font-size: 0.6rem;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <!-- Score Board -->
+        <div class="score-row">
+            <div class="score-box">
+                <div class="score-label">SCORE</div>
+                <div class="score-number" id="scoreDisplay">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">POINTS</div>
+                <div class="score-number" id="pointsDisplay">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">BEST</div>
+                <div class="score-number" id="bestDisplay">0</div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <div class="game-area">
+            <canvas id="gameCanvas" width="340" height="480"></canvas>
+        </div>
+
+        <!-- Tap Hint -->
+        <div class="tap-text">👇 TAP TO FLY 👆</div>
+
+        <!-- Progress -->
+        <div class="progress-simple">
+            <div class="progress-track">
+                <div class="progress-current" id="progressFill"></div>
+            </div>
+            <div class="progress-stats">
+                <span id="currentPoints">0</span>
+                <span>100 POINTS NEEDED</span>
+            </div>
+        </div>
+
+        <!-- Withdrawal Section -->
+        <div class="withdraw-box">
+            <div class="withdraw-title">WITHDRAW</div>
+
+            <select class="method-select" id="paymentSelect">
+                <option value="jazzcash">JazzCash</option>
+                <option value="easypaisa">EasyPaisa</option>
+                <option value="upaisa">Upaisa</option>
+            </select>
+
+            <div class="input-group">
+                <input type="text" class="field" id="mobileField" placeholder="Mobile number">
+                <input type="text" class="field" id="nameField" placeholder="Full name">
+                <input type="text" class="field" id="amountField" placeholder="Amount">
+            </div>
+
+            <button class="action-btn" id="withdrawButton">WITHDRAW</button>
+            <div class="status-text" id="statusMessage">Enter details to withdraw</div>
+        </div>
+
+        <div class="footer-note">Entertainment only</div>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const pointsDisplay = document.getElementById('pointsDisplay');
+            const bestDisplay = document.getElementById('bestDisplay');
+            const currentPoints = document.getElementById('currentPoints');
+            const progressFill = document.getElementById('progressFill');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Load saved data
+            let savedScore = localStorage.getItem('fbScore') || 0;
+            let savedPoints = localStorage.getItem('fbPoints') || 0;
+            
+            // Bird
+            let bird = {
+                x: 80,
+                y: 200,
+                vy: 0,
+                radius: 12,
+                gravity: 0.25,
+                jump: -5
+            };
+            
+            let pipes = [];
+            let frame = 0;
+            let gameActive = false;
+            let gameOver = false;
+            let score = parseInt(savedScore);
+            let points = parseInt(savedPoints);
+            let best = localStorage.getItem('fbBest') || 0;
+            
+            const pipeWidth = 45;
+            const pipeGap = 130;
+            const pipeSpeed = 2.5;
+            
+            // Update points (5 score = 1 point)
+            function updatePoints() {
+                points = Math.floor(score / 5);
+                pointsDisplay.innerText = points;
+                currentPoints.innerText = points;
+                let percent = Math.min(100, (points / 100) * 100);
+                progressFill.style.width = percent + '%';
+                
+                localStorage.setItem('fbScore', score);
+                localStorage.setItem('fbPoints', points);
+            }
+            
+            function updateUI() {
+                scoreDisplay.innerText = score;
+                if (score > best) {
+                    best = score;
+                    localStorage.setItem('fbBest', best);
+                }
+                bestDisplay.innerText = best;
+                updatePoints();
+            }
+            
+            function resetGame() {
+                bird.y = 200;
+                bird.vy = 0;
+                pipes = [];
+                frame = 0;
+                gameActive = true;
+                gameOver = false;
+            }
+            
+            // Draw bird
+            function drawBird() {
+                ctx.beginPath();
+                ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#f4c542';
+                ctx.fill();
+                
+                // Eye
+                ctx.beginPath();
+                ctx.arc(bird.x + 4, bird.y - 4, 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(bird.x + 5, bird.y - 5, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = '#000';
+                ctx.fill();
+                
+                // Beak
+                ctx.beginPath();
+                ctx.moveTo(bird.x + 10, bird.y - 6);
+                ctx.lineTo(bird.x + 18, bird.y - 8);
+                ctx.lineTo(bird.x + 12, bird.y - 2);
+                ctx.closePath();
+                ctx.fillStyle = '#e67e22';
+                ctx.fill();
+            }
+            
+            // Draw pipes
+            function drawPipes() {
+                pipes.forEach(p => {
+                    ctx.fillStyle = '#3d9e3d';
+                    ctx.fillRect(p.x, 0, pipeWidth, p.top);
+                    ctx.fillStyle = '#2d7a2d';
+                    ctx.fillRect(p.x - 5, p.top - 30, pipeWidth + 10, 30);
+                    
+                    ctx.fillStyle = '#3d9e3d';
+                    ctx.fillRect(p.x, p.bottom, pipeWidth, canvas.height - p.bottom);
+                    ctx.fillStyle = '#2d7a2d';
+                    ctx.fillRect(p.x - 5, p.bottom, pipeWidth + 10, 30);
+                });
+            }
+            
+            function drawCanvas() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#4ec0ca';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                drawPipes();
+                drawBird();
+                
+                if (gameOver) {
+                    ctx.font = 'bold 24px Arial';
+                    ctx.fillStyle = '#fff';
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 3;
+                    ctx.textAlign = 'center';
+                    ctx.strokeText('GAME OVER', canvas.width/2, 240);
+                    ctx.fillText('GAME OVER', canvas.width/2, 240);
+                }
+            }
+            
+            function drawIdle() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#4ec0ca';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#3d9e3d';
+                ctx.fillRect(200, 0, pipeWidth, 150);
+                ctx.fillStyle = '#2d7a2d';
+                ctx.fillRect(195, 120, pipeWidth + 10, 30);
+                
+                ctx.fillStyle = '#3d9e3d';
+                ctx.fillRect(200, 280, pipeWidth, 200);
+                ctx.fillStyle = '#2d7a2d';
+                ctx.fillRect(195, 280, pipeWidth + 10, 30);
+                
+                drawBird();
+            }
+            
+            // Game loop
+            function gameLoop() {
+                if (!gameActive) {
+                    drawIdle();
+                    requestAnimationFrame(gameLoop);
+                    return;
+                }
+                
+                bird.vy += bird.gravity;
+                bird.y += bird.vy;
+                
+                if (frame % 100 === 0) {
+                    let top = Math.floor(Math.random() * (canvas.height - pipeGap - 60) + 40);
+                    pipes.push({
+                        x: canvas.width,
+                        top: top,
+                        bottom: top + pipeGap
+                    });
+                }
+                
+                for (let i = pipes.length - 1; i >= 0; i--) {
+                    pipes[i].x -= pipeSpeed;
+                    
+                    if (bird.x + bird.radius > pipes[i].x && bird.x - bird.radius < pipes[i].x + pipeWidth) {
+                        if (bird.y - bird.radius < pipes[i].top || bird.y + bird.radius > pipes[i].bottom) {
+                            gameActive = false;
+                            gameOver = true;
+                        }
+                    }
+                    
+                    if (!pipes[i].passed && pipes[i].x + pipeWidth < bird.x) {
+                        pipes[i].passed = true;
+                        score++;
+                        updateUI();
+                    }
+                    
+                    if (pipes[i].x + pipeWidth < 0) {
+                        pipes.splice(i, 1);
+                    }
+                }
+                
+                if (bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+                    gameActive = false;
+                    gameOver = true;
+                }
+                
+                drawCanvas();
+                frame++;
+                requestAnimationFrame(gameLoop);
+            }
+            
+            // Event listeners
+            canvas.addEventListener('click', () => {
+                if (!gameActive) {
+                    resetGame();
+                } else {
+                    bird.vy = bird.jump;
+                }
+            });
+            
+            // Withdraw button
+            document.getElementById('withdrawButton').addEventListener('click', () => {
+                const method = document.getElementById('paymentSelect').value;
+                const mobile = document.getElementById('mobileField').value.trim();
+                const name = document.getElementById('nameField').value.trim();
+                const amount = document.getElementById('amountField').value.trim();
+                
+                if (!mobile || !name || !amount) {
+                    statusMessage.innerText = '❌ Fill all fields';
+                    return;
+                }
+                
+                if (points < 100) {
+                    statusMessage.innerText = `❌ Need ${100 - points} more points`;
+                    return;
+                }
+                
+                if (parseInt(amount) < 200) {
+                    statusMessage.innerText = '❌ Min amount 200';
+                    return;
+                }
+                
+                statusMessage.innerText = `✅ Sent to ${method}`;
+                
+                score = 0;
+                points = 0;
+                updateUI();
+            });
+            
+            // Initialize
+            bestDisplay.innerText = best;
+            updateUI();
+            drawIdle();
+            gameLoop();
+        })();
+    </script>
+</body>
+</html>
